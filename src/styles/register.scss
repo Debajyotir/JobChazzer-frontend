@@ -1,0 +1,33 @@
+.login-active{
+    background-color: #0f52ba;
+    border: 1px solid #0f52ba;
+    color: #fff;
+    border-radius: 50px;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+}
+.login-notactive{
+    background-color: #fff;
+    border: 1px solid #0f52ba;
+    color: #0f52ba;
+    border-radius: 50px;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+}
+
+.login-active-mobile{
+    background-color: #0f52ba;
+    border: 1px solid #0f52ba;
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+}
+.login-notactive-mobile{
+    background-color: #fff;
+    border: 1px solid #0f52ba;
+    color: #0f52ba;
+    border-radius: 50px;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+}
