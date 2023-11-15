@@ -225,7 +225,7 @@ const FormPage = ({page,registerPage}) => {
                                     name='gender'
                                     label="Gender"
                                     onChange={handleChange}
-                                    error={Boolean(touched.lastName) && Boolean(errors.lastName)}
+                                    error={Boolean(touched.gender) && Boolean(errors.gender)}
                                 >
                                 <MenuItem value={"Male"}>Male</MenuItem>
                                 <MenuItem value={"Female"}>Female</MenuItem>
