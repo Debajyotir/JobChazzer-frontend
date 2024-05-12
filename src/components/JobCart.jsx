@@ -14,8 +14,8 @@ const JobCart = ({job}) => {
         <div className="flex flex-col w-full p-4 gap-2">
             <div className="flex flex-row justify-between">
                 <div>
-                    <h1 className="font-semibold">{job.job_post}</h1>
-                    <p className="text-sm font-extralight text-slate-400">{job.company}</p>
+                    <h1 className="font-semibold break-words">{job.job_post}</h1>
+                    <p className="text-sm font-extralight text-slate-400 break-words">{job.company}</p>
                 </div>
                 <Button>
                     <BookmarkBorderIcon/>

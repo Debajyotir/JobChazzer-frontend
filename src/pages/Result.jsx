@@ -16,6 +16,7 @@ const Result = () => {
 
     useEffect(()=>{
         const api = async() => {
+          setJobs(null);
           try 
           {
             const res = await axios.post(`${server}/api/user/findbysearchalgorithm/`,values,{
@@ -29,7 +30,7 @@ const Result = () => {
           }
         }
         api();
-    },[]);
+    },[values]);
 
     if(!jobs || !token || !values){
       return <Loading />
