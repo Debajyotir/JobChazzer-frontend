@@ -30,7 +30,7 @@ const Register = () => {
                 fontSize= {isNonMobileScreens ? "32px" : "25px"}
                 color = "#0f52ba"
             >
-                JobChazzer...
+                JobChazzer
             </Typography>
 
             <Box

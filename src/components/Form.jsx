@@ -8,6 +8,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import axios from 'axios';
+import {server} from "../App";
+import { useDispatch } from 'react-redux';
+import { addToken } from '../store/login/loginSlice';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const loginInitialValues ={
@@ -38,7 +44,9 @@ const registerInitialValues ={
     experienced:"",
     yoe:0,
     moe:0,
-    work:[{organisation:"",topSkill:"",current:"",start:null,end:null}],
+    work:[{organisation:"",topSkill:"",current:"",jobPost:"",start:null,end:null}],
+    phone:"",
+    location:"",
 };
 
 const registerSchema = yup.object().shape({
@@ -67,11 +75,95 @@ const registerSchema = yup.object().shape({
                 end: yup.date().required("Ending Date is required").min(yup.ref("start"),"ending date can't be before starting date"),
             })).min(1,"At least one education is required"),
     experienced:yup.string().required("This is required"),
+    location:yup.string().required("This is required"),
+    phone:yup.string().matches(/^\+?\d+$/, 'Invalid phone number format').required("This is required"),
 });
 
 const FormPage = ({page,registerPage}) => {
 
     const isNonMobileScreens = useMediaQuery("(min-width: 800px)");
+
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
+
+    const handleSingUP = async (values, onSubmitProps) => {
+        try {
+            // console.log(values);
+            console.log("running2");
+            let b = values.dob.$M + 1;
+            let a = values.dob.$y + "-" + b + "-" + values.dob.$D;
+            values.dob =  a;
+            values.education.map((val,i)=>{
+                b = val.start.$M + 1;
+                a = val.start.$y + "-" + b + "-" + val.start.$D;
+                values.education[i].start = a;
+
+                b = val.end.$M + 1;
+                a = val.end.$y + "-" + b + "-" + val.end.$D;
+                values.education[i].end = a;
+            })
+
+            values?.work.map((val,i)=>{
+                if(val.start){
+                    b = val.start.$M + 1;
+                    a = val.start.$y + "-" + b + "-" + val.start.$D;
+                    values.work[i].start = a;
+                }
+
+                if(val.end){
+
+                    b = val.end.$M + 1;
+                    a = val.end.$y + "-" + b + "-" + val.end.$D;
+                    values.work[i].end = a;
+                }
+
+            })
+
+            if(values.experienced === "NO"){
+                values.work = [];
+            }
+
+            
+
+
+            // console.log(values);
+
+            const savedUserResponse =  await axios.post(`${server}/api/user/register/`, values);
+
+            onSubmitProps.resetForm();
+
+            dispatch(addToken({token:savedUserResponse.data.token.access}));
+
+            // console.log(savedUserResponse);
+
+            navigate("/");
+
+
+        } catch (error) {
+            console.log("error is ",error);
+        }
+    }
+
+    const handleLogin = async (values, onSubmitProps) => {
+        try {
+            // console.log(values);
+            console.log("running3");
+
+            const savedUserResponse =  await axios.post(`${server}/api/user/login/`, values);
+
+            onSubmitProps.resetForm();
+
+            // console.log(savedUserResponse);
+            dispatch(addToken({token:savedUserResponse.data.token.access}));
+
+            navigate("/");
+
+
+        } catch (error) {
+            console.log("error is ",error);
+        }
+    }
 
   return (
     <>
@@ -79,7 +171,7 @@ const FormPage = ({page,registerPage}) => {
         <Formik
             initialValues={loginInitialValues}
             validationSchema={loginSchema}
-            onSubmit={(values)=>{console.log(values)}}
+            onSubmit={handleLogin}
         >
             {({values,errors, touched, handleBlur, handleChange,resetForm})=>(
                 <Form>
@@ -103,19 +195,19 @@ const FormPage = ({page,registerPage}) => {
                             />
 
                             <TextField 
-                                    label="Password"
-                                    type="password"
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    placeholder='e.g. :- Abc#1234'
-                                    // value={values.password}
-                                    name="password"
-                                    error={Boolean(touched.password) && Boolean(errors.password)}
-                                    helperText={touched.password && errors.password}
-                                    sx={{
-                                        gridColumn:"span 4"
-                                    }}
-                                />
+                                label="Password"
+                                type="password"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                placeholder='e.g. :- Abc#1234'
+                                // value={values.password}
+                                name="password"
+                                error={Boolean(touched.password) && Boolean(errors.password)}
+                                helperText={touched.password && errors.password}
+                                sx={{
+                                    gridColumn:"span 4"
+                                }}
+                            />
                             
                         </>)}
 
@@ -166,7 +258,7 @@ const FormPage = ({page,registerPage}) => {
             <Formik
                 initialValues={registerInitialValues}
                 validationSchema={registerSchema}
-                onSubmit={(values)=>{console.log(values)}}
+                onSubmit={handleSingUP}
             >
                 {({values,errors, touched, handleBlur, handleChange,resetForm,setFieldValue, setFieldTouched})=>(
                     <Form>
@@ -258,6 +350,20 @@ const FormPage = ({page,registerPage}) => {
                             </LocalizationProvider>
 
                             <TextField 
+                                label="Location"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                // value={values.location}
+                                name="location"
+                                placeholder="e.g:- Kolkata, West Bengal, India"
+                                error={Boolean(touched.location) && Boolean(errors.location)}
+                                helperText={touched.location && errors.location}
+                                sx={{
+                                    gridColumn:"span 4"
+                                }}
+                            />
+
+                            <TextField 
                                 label="Skills"
                                 onBlur={handleBlur}
                                 onChange={handleChange}
@@ -294,6 +400,20 @@ const FormPage = ({page,registerPage}) => {
                                 onChange={handleChange}
                                 error={Boolean(touched.email) && Boolean(errors.email)}
                                 helperText={touched.email && errors.email}
+                                sx={{
+                                    gridColumn:"span 4"
+                                }}
+                            />
+
+                            <TextField 
+                                label="Phone Number"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                // value={values.phone}
+                                name="phone"
+                                placeholder="e.g:- +917997250001"
+                                error={Boolean(touched.phone) && Boolean(errors.phone)}
+                                helperText={touched.phone && errors.phone}
                                 sx={{
                                     gridColumn:"span 4"
                                 }}
@@ -489,7 +609,7 @@ const FormPage = ({page,registerPage}) => {
                                 <Box display="grid" gap="30px" gridTemplateColumns="repeat(4, minmax(0, 1fr))" sx={{
                                     "& > div" : {gridColumn: isNonMobileScreens ? undefined : "span 4"}, marginTop:"2rem"
                                 }}>
-                                <FormControl sx={{ gridColumn: 'span 2'}}>
+                                    <FormControl sx={{ gridColumn: 'span 2'}}>
                                         <InputLabel id="yoe-select-label">YOE</InputLabel>
                                         <Select
                                         labelId="yoe-select-label"
@@ -563,6 +683,20 @@ const FormPage = ({page,registerPage}) => {
                                                             gridColumn:"span 4"
                                                         }}
                                                     />
+
+                                                    <TextField 
+                                                        label="Job Post"
+                                                        onBlur={handleBlur}
+                                                        onChange={handleChange}
+                                                        placeholder='e.g. :- SDE1, SDE2'
+                                                        name={`work[${index}].jobPost`}
+                                                        error={Boolean(touched.work?.[index]?.jobPost) && Boolean(errors.work?.[index]?.jobPost)}
+                                                        helperText={touched.work?.[index]?.jobPost && errors.work?.[index]?.jobPost}
+                                                        sx={{
+                                                            gridColumn:"span 4"
+                                                        }}
+                                                    />
+
                                                     <TextField 
                                                         label="Top Skills required in this job"
                                                         onBlur={handleBlur}
@@ -588,8 +722,8 @@ const FormPage = ({page,registerPage}) => {
                                                         label="Still working hare"
                                                         onChange={handleChange}
                                                         >
-                                                        <MenuItem value={"YES"}>YES</MenuItem>
-                                                        <MenuItem value={"NO"}>NO</MenuItem>
+                                                        <MenuItem value={"Yes"}>YES</MenuItem>
+                                                        <MenuItem value={"No"}>NO</MenuItem>
                                                         </Select>
                                                     </FormControl>
 
@@ -629,7 +763,7 @@ const FormPage = ({page,registerPage}) => {
                                                                 sx={{
                                                                     gridColumn: 'span 2',
                                                                 }}
-                                                                disabled = {values.work[index].current==="YES"}
+                                                                disabled = {values.work[index].current==="Yes"}
                                                             />
                                                         </LocalizationProvider>
                                                     )}
