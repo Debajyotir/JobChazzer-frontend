@@ -6,6 +6,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import Search from './Search';
 import { useDispatch } from 'react-redux';
 import { removeToken } from '../store/login/loginSlice';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
     const isNonMobileScreens = useMediaQuery("(min-width: 800px)");
@@ -20,8 +21,14 @@ const Navbar = () => {
     }
 
     const handleLogOut = () => {
-        dispatch(removeToken());
-        navigate("/auth");
+        try {
+            dispatch(removeToken());
+            navigate("/auth");
+            toast.success("Logout successfully");
+        } catch (error) {
+            console.log(error);
+            toast.success("Error while logout");
+        }
     }
 
     if(hideNavbar)

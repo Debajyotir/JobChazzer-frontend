@@ -2,7 +2,7 @@ import { Box, Button, FormHelperText, TextField, Typography, useMediaQuery } fro
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FieldArray, Form, Formik } from 'formik'
-import React from 'react'
+import React, { useState } from 'react'
 import * as yup from "yup";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -13,6 +13,8 @@ import {server} from "../App";
 import { useDispatch } from 'react-redux';
 import { addToken } from '../store/login/loginSlice';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 
@@ -87,9 +89,13 @@ const FormPage = ({page,registerPage}) => {
 
     const navigate = useNavigate();
 
+    const [loading, setLoading] = useState(false);
+
     const handleSingUP = async (values, onSubmitProps) => {
         try {
             // console.log(values);
+            setLoading(true);
+
             console.log("running2");
             let b = values.dob.$M + 1;
             let a = values.dob.$y + "-" + b + "-" + values.dob.$D;
@@ -131,6 +137,8 @@ const FormPage = ({page,registerPage}) => {
 
             const savedUserResponse =  await axios.post(`${server}/api/user/register/`, values);
 
+            toast.success("Successfully registered")
+
             onSubmitProps.resetForm();
 
             dispatch(addToken({token:savedUserResponse.data.token.access}));
@@ -141,16 +149,22 @@ const FormPage = ({page,registerPage}) => {
 
 
         } catch (error) {
-            console.log("error is ",error);
+            toast.error(error.response.data.errors.email);
+            setLoading(false);
+            // console.log("error is ",error);
         }
     }
 
     const handleLogin = async (values, onSubmitProps) => {
         try {
+            setLoading(true);
+
             // console.log(values);
             console.log("running3");
 
             const savedUserResponse =  await axios.post(`${server}/api/user/login/`, values);
+
+            toast.success("Welcome Back to JobChazzer")
 
             onSubmitProps.resetForm();
 
@@ -161,7 +175,9 @@ const FormPage = ({page,registerPage}) => {
 
 
         } catch (error) {
-            console.log("error is ",error);
+            toast.error(error.response.data.errors.non_field_errors);
+            setLoading(false);
+            // console.log("error is ",error);
         }
     }
 
@@ -222,10 +238,11 @@ const FormPage = ({page,registerPage}) => {
                                 p:"1rem",
                                 backgroundColor:"#0f52ba",
                                 color:"#fff",
-                                "&:hover":{color:"#0f52ba"}
+                                "&:hover":{color:"#0f52ba"},
                             }}
+                            disabled = {loading}
                         >
-                            {"SINGIN"}
+                            {loading ? <CircularProgress size={24}/> : "SINGIN"}
                         </Button>
 
                         <Typography
@@ -831,8 +848,9 @@ const FormPage = ({page,registerPage}) => {
                                     color:"#fff",
                                     "&:hover":{color:"#0f52ba"}
                                 }}
+                                disabled={loading}
                             >
-                                {"SINGUP"}
+                                {loading ? <CircularProgress size={24}/> : "SINGUP"}
                             </Button>
 
                             <Typography
