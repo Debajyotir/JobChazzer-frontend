@@ -11,7 +11,6 @@ export const server = "https://jobchaser-plfr.onrender.com";
 
 function App() {
   const isAuth = useSelector(state=>state.login.token);
-  return <div>Currently Down</div>
   return (
     <div className="App">
       <Router>
